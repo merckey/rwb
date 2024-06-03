@@ -54,7 +54,7 @@ async def main():
 
     if stderr:
         print(stderr.decode())
-        return
+        # return
 
     projects = json.loads(response)
 
@@ -108,8 +108,8 @@ async def main():
         if not stdout:
             raise Exception(f'Failed to read folder. Empty response from {cmdline}\n[stderr]\n{stderr.decode()}')
 
-        if stderr:
-            raise Exception(f'Error returned from {cmdline}\n[stderr]\n{stderr.decode()}')
+        # if stderr:
+        #     raise Exception(f'Error returned from {cmdline}\n[stderr]\n{stderr.decode()}')
 
         response = stdout.decode()
 
@@ -178,8 +178,8 @@ async def main():
                 download_proc = await asyncio.create_subprocess_shell(cmdline, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
                 stdout, stderr = await download_proc.communicate()
 
-                if not stdout:
-                    raise Exception(f'Failed to read folder. Empty response from {cmdline}\n[stderr]\n{stderr.decode()}')
+                # if not stdout:
+                #     raise Exception(f'Failed to read folder. Empty response from {cmdline}\n[stderr]\n{stderr.decode()}')
 
                 if stderr:
                     raise Exception(f'Error returned from {cmdline}\n[stderr]\n{stderr.decode()}')
