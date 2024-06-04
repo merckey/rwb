@@ -33,3 +33,11 @@ Molecular downloads necessarily involve large numbers of large files. As the sop
 ```python
 python3 download_project.py --project-id <your project id> --exec ./rwb.osx.x64 --workers 2 --include /Avatar_MolecularData_hg38/2024_05_31/Whole_Exome/tumor_vcfs
 ```
+## Docker
+
+```sh
+docker build . -t merckey/hotspot:aster_rwb
+docker push merckey/hotpot:aster_rwb
+docker run -it merckey/hotspot:aster_rwb /app/rwb
+singularity pull -F docker://merckey/hotpot:aster_rwb
+```
