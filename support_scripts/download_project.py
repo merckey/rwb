@@ -26,7 +26,7 @@ async def main():
     parser.add_argument("--include", type=str, nargs='*', required=False, help="The folders included")
     parser.add_argument("--overwrite", default=False, action="store_true", help="Overwrite existing files instead of skip download if file exists and is the same size.")
     parser.add_argument("--workers", type=int, required=False, help="The number of workers to use for downloading files.", default=1)
-    parser.add_argument("--sampleids", type=str, nargs='*', required=False, help="The samples to include")
+    parser.add_argument("--sampleids", type=str, nargs='1', required=False, help="The samples to include")
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -39,7 +39,7 @@ async def main():
     folder_include = args.include
     overwrite = args.overwrite
     workers = args.workers
-    sampleids = args.sampleids
+    sampleids = args.sampleids[0]
 
     if verbose:
         print(f"folder included: {folder_include}")
