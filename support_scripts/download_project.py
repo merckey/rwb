@@ -26,6 +26,7 @@ async def main():
     parser.add_argument("--include", type=str, nargs='*', required=False, help="The folders included")
     parser.add_argument("--overwrite", default=False, action="store_true", help="Overwrite existing files instead of skip download if file exists and is the same size.")
     parser.add_argument("--workers", type=int, required=False, help="The number of workers to use for downloading files.", default=1)
+    parser.add_argument("--sampleids", type=str, nargs='*', required=False, help="The samples to include")
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -38,6 +39,7 @@ async def main():
     folder_include = args.include
     overwrite = args.overwrite
     workers = args.workers
+    sampleids = args.sampleids
 
     if verbose:
         print(f"folder included: {folder_include}")
@@ -99,6 +101,7 @@ async def main():
 
         cmdline = f"{executable} project files --project {project_id} --folder-id {folder_id}"
 
+
         if verbose:
             print(cmdline)
 
@@ -117,19 +120,39 @@ async def main():
 
         read_folders[folder_id] = folder_to_read
 
+        # parse the fileid list 
+        samples_to_include = []
+        if sampleids and os.path.exists(sampleids):
+            print(f"Download samples in {sampleids}")
+            
+            with open(sampleids, 'r') as idlist:
+            for line in idlist:
+                columns = line.strip().split('\t')
+                samples_to_include.append(columns[0])
+                print(f"Expected samples to download = {len(samples_to_include)}")
+
+                    
         for file in folder["files"]:
             file["fullPath"] = get_full_path(file, folder_to_read, read_folders)
-
-            if (file.get("size") != None):
-                total_size = total_size + file["size"]
+            keep = False
+            if len(samples_to_include):
+                if any(samples_to_include in file['fullPath']:
+                    keep = True
+                else:
+                    break
             else:
-                print(f"File {file['fileId']} ({file['fullPath']}) has no size...")
-
-            if verbose:
-                print(f"Capturing {file['fileId']} ({file['fullPath']})")
-
-            total_files = total_files + 1
-            files.put_nowait(file)
+                keep = True
+            if keep:
+                if (file.get("size") != None):
+                    total_size = total_size + file["size"]
+                else:
+                    print(f"File {file['fileId']} ({file['fullPath']}) has no size...")
+    
+                if verbose:
+                    print(f"Capturing {file['fileId']} ({file['fullPath']})")
+    
+                total_files = total_files + 1
+                files.put_nowait(file)
 
         for folder in folder["folders"]:
             if verbose:
