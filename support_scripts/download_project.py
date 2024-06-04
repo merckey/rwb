@@ -124,34 +124,30 @@ async def main():
         samples_to_include = []
         if sampleids and os.path.exists(sampleids):
             print(f"Download samples in {sampleids}")
-            
+        
             with open(sampleids, 'r') as idlist:
-            for line in idlist:
-                columns = line.strip().split('\t')
-                samples_to_include.append(columns[0])
-                print(f"Expected samples to download = {len(samples_to_include)}")
-
-                    
+                for line in idlist:
+                    columns = line.strip().split('\t')
+                    samples_to_include.append(columns[0])
+                    print(f"Expected samples to download = {len(samples_to_include)}")
+        
         for file in folder["files"]:
             file["fullPath"] = get_full_path(file, folder_to_read, read_folders)
-            keep = False
+        
             if len(samples_to_include):
-                if any(samples_to_include in file['fullPath']:
-                    keep = True
-                else:
-                    break
+                # Check if any sample ID is present in the file path
+                if any(sample in file['fullPath'] for sample in samples_to_include):
+                    total_size += file.get("size", 0)  # Handle missing size gracefully
+                    if verbose:
+                        print(f"Capturing {file['fileId']} ({file['fullPath']})")
+                    total_files += 1
+                    files.put_nowait(file)
             else:
-                keep = True
-            if keep:
-                if (file.get("size") != None):
-                    total_size = total_size + file["size"]
-                else:
-                    print(f"File {file['fileId']} ({file['fullPath']}) has no size...")
-    
+                # Include all files if no sample list provided
+                total_size += file.get("size", 0)  # Handle missing size gracefully
                 if verbose:
                     print(f"Capturing {file['fileId']} ({file['fullPath']})")
-    
-                total_files = total_files + 1
+                total_files += 1
                 files.put_nowait(file)
 
         for folder in folder["folders"]:
